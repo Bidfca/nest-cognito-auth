@@ -40,9 +40,44 @@ export class AuthController {
       },
     },
   })
-  async login(@Body() authenticateRequest: { name: string; password: string }) {
+  async authenticateUser(@Body() user: { name: string; password: string }) {
     try {
-      return await this.authService.authenticateUser(authenticateRequest);
+      return await this.authService.authenticateUser(user);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+  }
+
+  @Post('confirm-registration')
+  @ApiBody({
+    schema: {
+      properties: {
+        name: { type: 'string' },
+        code: { type: 'string' },
+      },
+    },
+  })
+  async confirmRegistration(
+    @Body() { name, code }: { name: string; code: string },
+  ) {
+    try {
+      return await this.authService.confirmRegistration(name, code);
+    } catch (e) {
+      throw new BadRequestException(e.message);
+    }
+  }
+
+  @Post('resend-confirmation-code')
+  @ApiBody({
+    schema: {
+      properties: {
+        name: { type: 'string' },
+      },
+    },
+  })
+  async resendConfirmationCode(@Body() { name }: { name: string }) {
+    try {
+      return await this.authService.resendConfirmationCode(name);
     } catch (e) {
       throw new BadRequestException(e.message);
     }

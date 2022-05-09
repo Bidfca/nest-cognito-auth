@@ -1,5 +1,5 @@
 import { AuthConfig } from './auth.config';
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   AuthenticationDetails,
   CognitoUser,
@@ -38,6 +38,44 @@ export class AuthService {
     });
   }
 
+  confirmRegistration(name: string, code: string) {
+    const userData = {
+      Username: name,
+      Pool: this.userPool,
+    };
+
+    const cognitoUser = new CognitoUser(userData);
+
+    return new Promise((resolve, reject) => {
+      return cognitoUser.confirmRegistration(code, true, (err, result) => {
+        if (!result) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  }
+
+  resendConfirmationCode(name: string) {
+    const userData = {
+      Username: name,
+      Pool: this.userPool,
+    };
+
+    const cognitoUser = new CognitoUser(userData);
+
+    return new Promise((resolve, reject) => {
+      return cognitoUser.resendConfirmationCode((err, result) => {
+        if (!result) {
+          reject(err);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  }
+
   authenticateUser(user: { name: string; password: string }) {
     const { name, password } = user;
 
@@ -45,6 +83,7 @@ export class AuthService {
       Username: name,
       Password: password,
     });
+
     const userData = {
       Username: name,
       Pool: this.userPool,
